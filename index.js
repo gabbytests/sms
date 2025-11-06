@@ -75,7 +75,7 @@ const cartSummary = cart
     const name = item.name || 'Unnamed Item';
     const qty = item.quantity ?? 1;
     const size = item.size ? ` (${item.size})` : '';
-    const price = typeof item.price === 'number' ? item.price + 1 : 1; // ✅ +1 per item
+    const price = typeof item.price === 'number' ? item.price : 0;
 
     const extras =
       item.extras && item.extras.length
