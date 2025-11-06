@@ -2,16 +2,17 @@ import 'dotenv/config';
 import express from 'express';
 import admin from 'firebase-admin';
 import fetch from 'node-fetch';
-import fs from 'fs';
 
 const app = express();
 app.use(express.json());
 
 // 🔐 Initialize Firebase Admin
-const serviceAccount = JSON.parse(fs.readFileSync('./serviceAccountKey.json'));
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
+
 const db = admin.firestore();
 
 // 📩 Send SMS via Hubtel
