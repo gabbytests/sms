@@ -75,7 +75,7 @@ const cartSummary = cart
     const name = item.name || 'Unnamed Item';
     const qty = item.quantity ?? 1;
     const size = item.size ? ` (${item.size})` : '';
-    const price = typeof item.price === 'number' ? item.price : 0;
+    const price = typeof item.price === 'number' ? item.price + 1 : 1; // ✅ +1 per item
 
     const extras =
       item.extras && item.extras.length
@@ -89,12 +89,12 @@ const cartSummary = cart
             .join('\n')}`
         : '';
 
-    // Add +1 to the total price of each item
-    const total = price * qty + 1;
-
-    return `${qty}x ${name}${size} - GHC${total.toFixed(2)}${extras}`;
+    return `${qty}x ${name}${size} - GHC${(price * qty).toFixed(2)}${extras}`;
   })
   .join('\n');
+
+// ✅ Add +2 to total order price (not per item)
+const adjustedTotal = (order.totalAmount || 0) + 2;
 
 
             const msg = `
@@ -104,7 +104,8 @@ Restaurant: ${order.restaurantName || 'N/A'}
 Items:
 ${cartSummary || 'No items'}
 Note: ${delivery.note || 'None'}
-Total: GHC${order.totalAmount?.toFixed(2) || '0.00'}
+
+Total: GHC${adjustedTotal.toFixed(2)}
 
 Location: ${delivery.hostel || 'N/A'}, Room ${delivery.location || '-'}
 Customer: ${order.userName || 'Unknown'}
