@@ -70,30 +70,32 @@ function startOrderListener() {
               ? order.cartItems
               : [];
 
-            const cartSummary = cart
-              .map((item) => {
-                const name = item.name || 'Unnamed Item';
-                const qty = item.quantity ?? 1;
-                const size = item.size ? ` (${item.size})` : '';
-                const price = typeof item.price === 'number' ? item.price : 0;
+const cartSummary = cart
+  .map((item) => {
+    const name = item.name || 'Unnamed Item';
+    const qty = item.quantity ?? 1;
+    const size = item.size ? ` (${item.size})` : '';
+    const price = typeof item.price === 'number' ? item.price : 0;
 
-                const extras =
-                  item.extras && item.extras.length
-                    ? `\nExtras:\n${item.extras
-                        .map(
-                          (e) =>
-                            ` - ${e.name} (GHC${parseFloat(
-                              e.price || 0
-                            ).toFixed(2)}) ${e.quantity || 1}x`
-                        )
-                        .join('\n')}`
-                    : '';
+    const extras =
+      item.extras && item.extras.length
+        ? `\nExtras:\n${item.extras
+            .map(
+              (e) =>
+                ` - ${e.name} (GHC${parseFloat(e.price || 0).toFixed(2)}) x${
+                  e.quantity || 1
+                }`
+            )
+            .join('\n')}`
+        : '';
 
-                return `${qty}x ${name}${size} - GHC${(
-                  price * qty
-                ).toFixed(2)}${extras}`;
-              })
-              .join('\n');
+    // Add +1 to the total price of each item
+    const total = price * qty + 1;
+
+    return `${qty}x ${name}${size} - GHC${total.toFixed(2)}${extras}`;
+  })
+  .join('\n');
+
 
             const msg = `
 New Order!
