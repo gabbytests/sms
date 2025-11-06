@@ -96,7 +96,7 @@ function startOrderListener() {
               .join('\n');
 
             const msg = `
-New Order Received!
+New Order!
 
 Restaurant: ${order.restaurantName || 'N/A'}
 Items:
