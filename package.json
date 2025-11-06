@@ -1,0 +1,27 @@
+{
+  "name": "sms-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edunesthub/sms-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edunesthub/sms-server/issues"
+  },
+  "homepage": "https://github.com/edunesthub/sms-server#readme",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase-admin": "^13.5.0",
+    "node-fetch": "^3.3.2"
+  }
+}
