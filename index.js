@@ -17,34 +17,38 @@ const db = admin.firestore();
 // 📩 Send SMS via Hubtel
 async function sendHubtelSMS(to, message) {
   try {
+    const auth = Buffer.from(
+      `${process.env.HUBTEL_CLIENT_ID}:${process.env.HUBTEL_CLIENT_SECRET}`
+    ).toString('base64');
+
+    const body = {
+      From: 'Hubtel', // must be approved
+      To: to,
+      Content: message,
+    };
+
     const response = await fetch('https://smsc.hubtel.com/v1/messages/send', {
       method: 'POST',
       headers: {
-        Authorization:
-          'Basic ' +
-          Buffer.from(
-            `${process.env.HUBTEL_CLIENT_ID}:${process.env.HUBTEL_CLIENT_SECRET}`
-          ).toString('base64'),
+        Authorization: `Basic ${auth}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        From: 'Chawp',
-        To: to,
-        Content: message,
-      }),
+      body: JSON.stringify(body),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+    console.log('📨 Hubtel response:', response.status, text);
+
     if (!response.ok) {
-      console.error('❌ Hubtel SMS error:', data);
+      console.error('❌ Hubtel rejected SMS');
     } else {
-      console.log('✅ SMS sent to:', to, data);
+      console.log('✅ SMS sent to:', to);
     }
-    return data;
   } catch (err) {
-    console.error('❌ Failed to send Hubtel SMS:', err);
+    console.error('🔥 Hubtel fetch error:', err);
   }
 }
+
 
 // 🔔 Listen for new orders
 let unsubscribeOrders = null;
@@ -80,25 +84,30 @@ function startOrderListener() {
                   const qty = item.quantity ?? 1;
                   const size = item.size ? ` (${item.size})` : "";
                   const price = typeof item.price === "number" ? item.price : 0;
+
                   const extras = item.extras && item.extras.length
-                    ? ` | Extras: ${item.extras.map(e => `${e.quantity}x ${e.name}`).join(", ")}`
+                    ? `\nExtras:\n${item.extras
+                        .map(e => ` - ${e.name} (GHC${parseFloat(e.price || 0).toFixed(2)}) ${e.quantity || 1}x`)
+                        .join("\n")}`
                     : "";
-                  return `${qty}x ${name}${size} - GH₵${(price * qty).toFixed(2)}${extras}`;
+
+                  return `${qty}x ${name}${size} - GHC${(price * qty).toFixed(2)}${extras}`;
                 })
                 .join("\n");
 
               const msg = `
-🍔 New Order Received!
+New Order Received!
 
-Customer: ${order.userName || "Unknown"}
 Restaurant: ${order.restaurantName || "N/A"}
 Items:
 ${cartSummary || "No items"}
-
-Total: GH₵${order.totalAmount?.toFixed(2) || "0.00"}
-Location: ${delivery.hostel || "N/A"}, Room ${delivery.location || "-"}
-Contact: ${delivery.contactNumber || "-"}
 Note: ${delivery.note || "None"}
+Total: GHC${order.totalAmount?.toFixed(2) || "0.00"}
+
+
+Location: ${delivery.hostel || "N/A"}, Room ${delivery.location || "-"}
+Customer: ${order.userName || "Unknown"}
+Contact: ${delivery.contactNumber || "-"}
 
 Order ID: ${orderId}
               `.trim();
